@@ -1,0 +1,1986 @@
+{
+  "appid": "4ce4fbb0-37fc-408e-b9e0-82a9cdbdb620",
+  "name": "Microsoft Sentinel",
+  "description": "Splunk SOAR connector module for integration with the Microsoft Sentinel API",
+  "type": "information",
+  "main_module": "mcirosoftsentinel_connector.py",
+  "app_version": "1.0.0",
+  "product_vendor": "Microsoft",
+  "product_name": "Microsoft Sentinel",
+  "product_version_regex": ".*",
+  "publisher": "Supernawesome, L.L.C.",
+  "package_name": "phantom_microsoftsentinel",
+  "license": "GNU General Public License v3.0",
+  "consolidate_widgets": false,
+  "url": "https://github.com/supergnaw/phMicrosoft-Sentinel",
+  "logo": "logo_mcirosoftsentinel.svg",
+  "logo_dark": "logo_dark_mcirosoftsentinel.svg",
+  "python_version": "3",
+  "utctime_updated": "2022-04-30T14:52:08.552463Z",
+  "min_phantom_version": "6.0.0",
+  "latest_tested_versions": [],
+  "fips_compliant": true,
+  "configuration": {
+    "login_uri": {
+      "name": "login_uri",
+      "default": "https://login.microsoftonline.us",
+      "description": "URI endpoint used to generate authentication tokens",
+      "data_type": "string",
+      "required": false,
+      "order": 0
+    },
+    "login_scope": {
+      "name": "login_scope",
+      "default": "https://management.azure.com/.default",
+      "description": "Login scope of API access",
+      "data_type": "string",
+      "required": false,
+      "order": 1
+    },
+    "tenant_id": {
+      "description": "Tenant ID (e.g. 1e309abf-db6c-XXXX-a1d2-XXXXXXXXXXXX)",
+      "data_type": "string",
+      "required": true,
+      "order": 2
+    },
+    "subscription_id": {
+      "description": "The ID of the target subscription",
+      "data_type": "string",
+      "required": true,
+      "order": 3
+    },
+    "resource_group_name": {
+      "description": "The name of the resource group. The name is case insensitive",
+      "data_type": "string",
+      "required": true,
+      "order": 4
+    },
+    "workspace_name": {
+      "description": "The name of the workspace",
+      "data_type": "string",
+      "required": true,
+      "order": 5
+    },
+    "workspace_id": {
+      "description": "The id of the workspace",
+      "data_type": "string",
+      "required": true,
+      "order": 6
+    },
+    "client_id": {
+      "description": "Application (client) ID assigned to your Graph Security API app",
+      "data_type": "string",
+      "required": true,
+      "order": 7
+    },
+    "client_secret": {
+      "description": "Client Secret",
+      "data_type": "password",
+      "required": true,
+      "order": 8
+    },
+    "first_run_max_incidents": {
+      "description": "Maximum Incidents for scheduled polling first time",
+      "data_type": "numeric",
+      "default": 1000,
+      "order": 9
+    },
+    "start_time_scheduled_poll": {
+      "description": "Start Time for Schedule/Manual POLL (Use this format: 1970-01-01T00:00:00Z)",
+      "data_type": "string",
+      "order": 10
+    }
+  },
+  "actions": [
+    {
+      "action": "verify authentication tokens",
+      "identifier": "verify_authentication_tokens",
+      "description": "Verifies the authentication tokens and returns token details",
+      "type": "test",
+      "read_only": true,
+      "parameters": {
+        "force_refresh": {
+          "description": "Remove cached authorization tokens and generate new ones.",
+          "data_type": "boolean",
+          "required": false,
+          "default": false,
+          "name": "force_refresh",
+          "id": 1,
+          "param_name": "force_refresh"
+        }
+      },
+      "output": [
+        {
+          "data_path": "action_result.data.*.details.0.typ",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.0.alg",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.0.x5t",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.0.kid",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.aud",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.iss",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.iat",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.nbf",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.exp",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.aio",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.appid",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.appidacr",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.adp",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.oid",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.rh",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.sub",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.tid",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.uti",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.details.1.ver",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.summary.appid",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.summary.subscription",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.summary.endpoint",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.summary.expires_in",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.summary.expires_on",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.summary.roles.*",
+          "data_type": "string"
+        }
+      ],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "test connectivity",
+      "identifier": "test_connectivity",
+      "description": "Verifies SOAR connection with Sentinel",
+      "verbose": "Validates the asset configuration by attempting some simple, read-only actions",
+      "type": "test",
+      "read_only": true,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "on poll",
+      "description": "Callback action for the on_poll ingest functionality",
+      "type": "ingest",
+      "identifier": "on_poll",
+      "read_only": true,
+      "parameters": {
+        "container_count": {
+          "data_type": "numeric",
+          "description": "Number of events to generate",
+          "value": null,
+          "order": 0
+        },
+        "artifact_count": {
+          "data_type": "numeric",
+          "description": "Number of artifacts to generate per event",
+          "value": null,
+          "order": 1
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_alert_rule",
+      "read_only": false,
+      "parameters": {
+        "logic_app_resource_id": {
+          "description": "Logic App Resource Id",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "logic_app_resource_id",
+          "id": 1,
+          "param_name": "logic_app_resource_id"
+        },
+        "trigger_uri": {
+          "description": "Logic App Callback URL for this specific workflow.",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "trigger_uri",
+          "id": 1,
+          "param_name": "trigger_uri"
+        },
+        "etag": {
+          "description": "Etag of the azure resource",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "etag",
+          "id": 1,
+          "param_name": "etag"
+        }
+      },
+      "output": [
+        {
+          "data_path": "action_result.data.etag",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.id",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.name",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.properties.logicAppResourceId",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.properties.workflowId",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.createdAt",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.createdBy",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.createdByType",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.lastModifiedAt",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.lastModifiedBy",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.lastModifiedByType",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.type",
+          "data_type": "string"
+        }
+      ],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule delete",
+      "description": "Delete the action of alert rule",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/delete?view=rest-securityinsights-2024-03-01&tabs=HTTP' target='_blank'>asdfasdf</a>",
+      "type": "type_goes_here",
+      "identifier": "delete_alert_rule",
+      "read_only": false,
+      "parameters": {
+        "alert_rule_id": {
+          "description": "Alert rule ID",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "alert_rule_id",
+          "id": 0,
+          "param_name": "alert_rule_id"
+        },
+        "action_id": {
+          "description": "Action ID",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "action_id",
+          "id": 1,
+          "param_name": "action_id"
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_alert_rule",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rules list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_alert_rules",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule action create or update",
+      "description": "Creates or updates the action of alert rule.\n\n",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP' target='_blank'>Microsoft Docs - lsdkjflsdkjfsldkjlkdfj</a>",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_alert_rule",
+      "read_only": false,
+      "parameters": {
+        "logic_app_resource_id": {
+          "description": "Logic App Resource Id",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "logic_app_resource_id",
+          "id": 1,
+          "param_name": "logic_app_resource_id"
+        },
+        "trigger_uri": {
+          "description": "Logic App Callback URL for this specific workflow.",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "trigger_uri",
+          "id": 1,
+          "param_name": "trigger_uri"
+        },
+        "etag": {
+          "description": "Etag of the azure resource",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "etag",
+          "id": 1,
+          "param_name": "etag"
+        }
+      },
+      "output": [
+        {
+          "data_path": "action_result.data.etag",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.id",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.name",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.properties.logicAppResourceId",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.properties.workflowId",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.createdAt",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.createdBy",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.createdByType",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.lastModifiedAt",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.lastModifiedBy",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.systemData.lastModifiedByType",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.type",
+          "data_type": "string"
+        }
+      ],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule action delete",
+      "description": "Delete the action of alert rule",
+      "verbose": "https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/delete?view=rest-securityinsights-2024-03-01&tabs=HTTP",
+      "type": "type_goes_here",
+      "identifier": "delete_alert_rule",
+      "read_only": false,
+      "parameters": {
+        "alert_rule_id": {
+          "description": "Alert rule ID",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "alert_rule_id",
+          "id": 0,
+          "param_name": "alert_rule_id"
+        },
+        "action_id": {
+          "description": "Action ID",
+          "data_type": "string",
+          "required": true,
+          "default": "",
+          "name": "action_id",
+          "id": 1,
+          "param_name": "action_id"
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule action get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_alert_rule_action",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule actions list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_action_by_alert_rule",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule template get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_alert_rule_template",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "alert rule templates list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_alert_rule_templates",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "automation rule create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_automation_rule",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "automation rule delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_automation_rule",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "automation rule get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_automation_rule",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "automation rules list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_automation_rules",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "bookmark create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_bookmark",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "bookmark delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_bookmark",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "bookmark get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_bookmark",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "bookmarks list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_bookmarks",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "content package install",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "install_content_package",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "content package uninstall",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "uninstall_content_package",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "content templates list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_content_templates",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "data connector create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_data_connector",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "data connector delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_data_connector",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "data connector get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_data_connector",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "data connectors list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_data_connectors",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "run playbook on entity",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_data_connectors",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident comment create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_incident_comment",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident comment delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_incident_comment",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident comment get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_incident_comment",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident comments list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_comments",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident relation create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_comments",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident relation delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_comments",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident relation get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_comments",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident relations list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_comments",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident task create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_incident_task",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident task delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_incident_task",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident task get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_incident_task",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident tasks list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_tasks",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident run playbook",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "run_playbook_on_incident",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_incident",
+      "verbose": "https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP",
+      "read_only": false,
+      "versions": "EQ(*)",
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "numeric",
+          "required": true,
+          "value_list": [],
+          "primary": false,
+          "name": "incident_id"
+        },
+        "severity": {
+          "description": "The severity of the incident",
+          "data_type": "string",
+          "required": true,
+          "value_list": [
+            "High",
+            "Medium",
+            "Low",
+            "Informational"
+          ],
+          "primary": false,
+          "name": "severity"
+        },
+        "status": {
+          "description": "The status of the incident",
+          "data_type": "string",
+          "required": true,
+          "value_list": [
+            "New",
+            "Active",
+            "Closed"
+          ],
+          "primary": false,
+          "name": "status"
+        },
+        "title": {
+          "description": "The title of the incident",
+          "data_type": "string",
+          "required": true,
+          "value_list": [],
+          "primary": false,
+          "name": "title"
+        },
+        "etag": {
+          "description": "Etag of the azure resource",
+          "data_type": "string",
+          "required": false,
+          "value_list": [],
+          "primary": false,
+          "name": "etag"
+        },
+        "classification": {
+          "description": "The reason the incident was closed",
+          "data_type": "string",
+          "required": false,
+          "value_list": [
+            "BenignPositive",
+            "FalsePositive",
+            "TruePositive",
+            "Undetermined"
+          ],
+          "primary": false,
+          "name": "classification"
+        },
+        "classification_comment": {
+          "description": "Describes the reason the incident was closed",
+          "data_type": "string",
+          "required": false,
+          "value_list": [],
+          "primary": false,
+          "name": ""
+        },
+        "classification_reason": {
+          "description": "The classification reason the incident was closed with",
+          "data_type": "string",
+          "required": false,
+          "value_list": [
+            "InaccurateData",
+            "IncorrectAlertLogic",
+            "SuspiciousActivity",
+            "SuspiciousButExpected"
+          ],
+          "primary": false,
+          "name": "classification_reason"
+        },
+        "description": {
+          "description": "The description of the incident",
+          "data_type": "string",
+          "required": false,
+          "value_list": [],
+          "primary": false,
+          "name": "description"
+        },
+        "first_activity": {
+          "description": "The time of the first activity in the incident",
+          "data_type": "string",
+          "required": false,
+          "value_list": [],
+          "primary": false,
+          "name": "first_activity"
+        },
+        "labels": {
+          "description": "List of labels relevant to this incident; is of the <a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP#incidentlabel'>IncidentLabel</a> data type",
+          "data_type": "string",
+          "required": false,
+          "value_list": [],
+          "primary": false,
+          "name": ""
+        },
+        "last_activity": {
+          "description": "The time of the last activity in the incident",
+          "data_type": "string",
+          "required": false,
+          "value_list": [],
+          "primary": false,
+          "name": "last_activity"
+        },
+        "owner": {
+          "description": "Describes a user that the incident is assigned to; is of the <a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP#incidentownerinfo'>IncidentOwnerInfo</a> datatype",
+          "data_type": "string",
+          "required": false,
+          "value_list": [],
+          "primary": false,
+          "name": "owner"
+        }
+      },
+      "output": [
+        {
+          "data_path": "action_result.status",
+          "data_type": "string",
+          "example_values": [
+            "success",
+            "failed"
+          ]
+        },
+        {
+          "data_path": "etag",
+          "data_type": "string"
+        },
+        {
+          "data_path": "id",
+          "data_type": "string"
+        },
+        {
+          "data_path": "name",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.additionalData",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.classification",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.classificationComment",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.classificationReason",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.createdTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.description",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.firstActivityTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.incidentNumber",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "properties.incidentUrl",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.labels",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.lastActivityTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.lastModifiedTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.owner",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.providerIncidentId",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.providerName",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.relatedAnalyticRuleIds",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.severity",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.status",
+          "data_type": "string"
+        },
+        {
+          "data_path": "properties.title",
+          "data_type": "string"
+        },
+        {
+          "data_path": "systemData",
+          "data_type": "string"
+        },
+        {
+          "data_path": "type",
+          "data_type": "string"
+        },
+        {
+          "data_path": "CloudErrorBody.code",
+          "data_type": "string"
+        },
+        {
+          "data_path": "CloudErrorBody.message",
+          "data_type": "string"
+        }
+      ]
+    },
+    {
+      "action": "incident delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_incident",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_incident",
+      "read_only": true,
+      "parameters": {
+        "incident_name": {
+          "description": "Incident Name",
+          "data_type": "string",
+          "required": true,
+          "order": 0
+        }
+      },
+      "output": [
+        {
+          "data_path": "action_result.status",
+          "data_type": "string",
+          "example_values": [
+            "success",
+            "failed"
+          ]
+        },
+        {
+          "data_path": "action_result.parameter.incident_name",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.etag",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.id",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.name",
+          "data_type": "string",
+          "contains": [
+            "mssentinel incident name"
+          ],
+          "column_name": "Name",
+          "column_order": 0
+        },
+        {
+          "data_path": "action_result.data.*.properties.additionalData.alertsCount",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.additionalData.bookmarksCount",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.additionalData.commentsCount",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.createdTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.incidentNumber",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.incidentUrl",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.labels.*.labelName",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.labels.*.labelType",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.lastModifiedTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.assignedTo",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.email",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.objectId",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.userPrincipalName",
+          "data_type": "string",
+          "column_name": "Owner UPN",
+          "column_order": 3
+        },
+        {
+          "data_path": "action_result.data.*.properties.severity",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.status",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.title",
+          "data_type": "string",
+          "column_name": "Title",
+          "column_order": 2
+        },
+        {
+          "data_path": "action_result.data.*.type",
+          "data_type": "string",
+          "column_name": "Type",
+          "column_order": 1
+        },
+        {
+          "data_path": "action_result.summary.incident_id",
+          "data_type": "string",
+          "contains": [
+            "mssentinel incident id"
+          ]
+        },
+        {
+          "data_path": "action_result.summary.incident_name",
+          "data_type": "string",
+          "contains": [
+            "mssentinel incident name"
+          ]
+        },
+        {
+          "data_path": "action_result.message",
+          "data_type": "string"
+        },
+        {
+          "data_path": "summary.total_objects",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "summary.total_objects_successful",
+          "data_type": "numeric"
+        }
+      ],
+      "versions": "EQ(*)",
+      "render": {
+        "width": 12,
+        "title": "Get Incident",
+        "type": "table",
+        "height": 5
+      }
+    },
+    {
+      "action": "incidents list",
+      "identifier": "list_incidents",
+      "description": "Gets all incidents",
+      "parameters": {
+        "limit": {
+          "data_type": "numeric",
+          "description": "Maximum number of incidents to list",
+          "required": true,
+          "default": 100,
+          "order": 0
+        },
+        "filter": {
+          "data_type": "string",
+          "description": "Filters the results, based on a Boolean condition",
+          "order": 1
+        }
+      },
+      "type": "investigate",
+      "read_only": true,
+      "versions": "EQ(*)",
+      "output": [
+        {
+          "data_path": "action_result.status",
+          "data_type": "string",
+          "example_values": [
+            "success",
+            "failed"
+          ]
+        },
+        {
+          "data_path": "action_result.parameter.filter",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.parameter.limit",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.etag",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.id",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.name",
+          "data_type": "string",
+          "contains": [
+            "mssentinel incident id"
+          ]
+        },
+        {
+          "data_path": "action_result.data.*.properties.additionalData.alertsCount",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.additionalData.bookmarksCount",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.additionalData.commentsCount",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.createdTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.incidentNumber",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.data.*.properties.incidentUrl",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.labels.*.labelName",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.labels.*.labelType",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.lastModifiedTimeUtc",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.assignedTo",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.email",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.objectId",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.owner.userPrincipalName",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.severity",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.status",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.properties.title",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.type",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.summary.total_incidents",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.message",
+          "data_type": "string"
+        },
+        {
+          "data_path": "summary.total_objects",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "summary.total_objects_successful",
+          "data_type": "numeric"
+        }
+      ],
+      "render": {
+        "width": 12,
+        "title": "List Incidents",
+        "type": "custom",
+        "view": "mssentinel_view.list_incidents",
+        "height": 5
+      }
+    },
+    {
+      "action": "incident alerts list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_alerts",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident bookmarks list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_bookmarks",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "incident entities list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_incident_entities",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "metadata create",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_metadata",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "metadata delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_metadata",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "metadata get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_metadata",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "metadata list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_metadata",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "metadata update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "update_metadata",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "operations list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_operations",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "product package get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_product_package",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "product packages list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_product_packages",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "product template get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_product_template",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "product templates list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_product_templates",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "machine learning analytics settings create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_machine_learning_analytics_settings",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "machine learning analytics settings delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_machine_learning_analytics_settings",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "machine learning analytics settings get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_machine_learning_analytics_settings",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "machine learning analytics settings list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_machine_learning_analytics_settings",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "sentinel onboarding state create",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_sentinel_onboarding_state",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "sentinel onboarding state delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_sentinel_onboarding_state",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "sentinel onboarding state get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_sentinel_onboarding_state",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "sentinel onboarding state list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_sentinel_onboarding_state",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "source control repositories list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_source_control_repositories",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "source control create",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_source_control",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "source control delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_source_control",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "source control get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_source_control",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "source control list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_source_control",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicator append tags",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "append_tags_to_threat_intelligence_indicator",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicator create",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_threat_intelligence_indicator",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicator update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_threat_intelligence_indicator",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicator delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_threat_intelligence_indicator",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicator get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_threat_intelligence_indicator",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicators query",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "query_threat_intelligence_indicators",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicator replace tags",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "replace_threat_intelligence_indicator_tags",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "threat intelligence indicator list metrics",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "threat_intelligence_indicator_metrics",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlist item create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_watchlist_item",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlist item delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_watchlist_item",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlist item get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_watchlist_item",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlist items list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_watchlist_items",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlist create or update",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "create_or_update_watchlist",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlist delete",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "delete_watchlist",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlist get",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "get_watchlist",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "watchlists list",
+      "description": "description_goes_here",
+      "verbose": "verbose_description_goes_here",
+      "type": "type_goes_here",
+      "identifier": "list_watchlists",
+      "read_only": false,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "run query",
+      "identifier": "run_query",
+      "description": "Queries the Sentinel Log Analytics workspace for data using KQL",
+      "parameters": {
+        "query": {
+          "description": "Query in KQL (for example, \"SecurityIncident\" will retrieve the Sentinel incidents table)",
+          "data_type": "string",
+          "required": true,
+          "order": 0
+        },
+        "timespan": {
+          "description": "Time Interval in ISO 8601 Duration format. For example, \"P7D\" for last 7 days or an interval like \"2007-03-01T13:00:00Z/2008-05-11T15:30:00Z\"",
+          "data_type": "string",
+          "order": 1
+        },
+        "max_rows": {
+          "description": "Maximum number of rows to return in the result. Defaults to 3000",
+          "data_type": "numeric",
+          "required": true,
+          "default": 3000,
+          "order": 2
+        }
+      },
+      "output": [
+        {
+          "data_path": "action_result.status",
+          "data_type": "string",
+          "example_values": [
+            "success",
+            "failed"
+          ]
+        },
+        {
+          "data_path": "action_result.status",
+          "data_type": "string",
+          "example_values": [
+            "success",
+            "failed"
+          ]
+        },
+        {
+          "data_path": "action_result.parameter.max_rows",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.parameter.query",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.parameter.timespan",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.data.*.TimeGenerated",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.summary.total_rows",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "action_result.message",
+          "data_type": "string"
+        },
+        {
+          "data_path": "action_result.message",
+          "data_type": "string"
+        },
+        {
+          "data_path": "summary.total_objects",
+          "data_type": "numeric"
+        },
+        {
+          "data_path": "summary.total_objects_successful",
+          "data_type": "numeric"
+        }
+      ],
+      "type": "generic",
+      "read_only": false,
+      "versions": "EQ(*)",
+      "render": {
+        "width": 12,
+        "title": "Run Query",
+        "type": "custom",
+        "view": "mssentinel_view.run_query",
+        "height": 5
+      }
+    }
+  ],
+  "pip_dependencies": {
+    "wheel": []
+  }
+}
