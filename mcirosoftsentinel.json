@@ -22,91 +22,141 @@
   "fips_compliant": true,
   "configuration": {
     "login_uri": {
-      "name": "login_uri",
-      "default": "https://login.microsoftonline.us",
-      "description": "URI endpoint used to generate authentication tokens",
       "data_type": "string",
+      "description": "Login URI to generate authentication tokens",
       "required": false,
+      "value_list": [],
+      "default": "https://login.microsoftonline.us",
       "order": 0
     },
-    "login_scope": {
-      "name": "login_scope",
-      "default": "https://management.azure.com/.default",
-      "description": "Login scope of API access",
-      "data_type": "string",
-      "required": false,
+    "placeholder_1": {
+      "data_type": "ph",
       "order": 1
     },
-    "tenant_id": {
-      "description": "Tenant ID (e.g. 1e309abf-db6c-XXXX-a1d2-XXXXXXXXXXXX)",
+    "sentinel_scope": {
       "data_type": "string",
-      "required": true,
+      "description": "Login scope for sentinel API access",
+      "required": false,
+      "value_list": [],
+      "default": "https://management.azure.com/.default",
       "order": 2
     },
-    "subscription_id": {
-      "description": "The ID of the target subscription",
+    "loganalytics_scope": {
       "data_type": "string",
-      "required": true,
+      "description": "Login scope for loganalytics API access",
+      "required": false,
+      "value_list": [],
+      "default": "https://api.loganalytics.azure.com/.default",
       "order": 3
     },
-    "resource_group_name": {
-      "description": "The name of the resource group. The name is case insensitive",
+    "tenant_id": {
       "data_type": "string",
+      "description": "Tenant ID (e.g. e336fe3f-ce43-4905-805a-043800b3bdaa)",
       "required": true,
+      "value_list": [],
+      "default": "",
       "order": 4
     },
-    "workspace_name": {
-      "description": "The name of the workspace",
+    "subscription_id": {
       "data_type": "string",
+      "description": "Subscription ID (e.g. 7086d59d-e508-428b-af10-9d09de36b95b)",
       "required": true,
+      "value_list": [],
+      "default": "",
       "order": 5
     },
-    "workspace_id": {
-      "description": "The id of the workspace",
+    "resource_group_name": {
       "data_type": "string",
+      "description": "Resource group name (e.g. resource-group-name)",
       "required": true,
+      "value_list": [],
+      "default": "",
       "order": 6
     },
-    "client_id": {
-      "description": "Application (client) ID assigned to your Graph Security API app",
-      "data_type": "string",
-      "required": true,
+    "placeholder_2": {
+      "data_type": "ph",
       "order": 7
     },
-    "client_secret": {
-      "description": "Client Secret",
-      "data_type": "password",
+    "workspace_name": {
+      "data_type": "string",
+      "description": "Workspace name (e.g. work-space-name)",
       "required": true,
+      "value_list": [],
+      "default": "",
       "order": 8
     },
-    "first_run_max_incidents": {
-      "description": "Maximum Incidents for scheduled polling first time",
-      "data_type": "numeric",
-      "default": 1000,
+    "workspace_id": {
+      "data_type": "string",
+      "description": "Workspace ID (e.g. 081b5e8f-aea4-4e8f-8dad-1153f61c19d1)",
+      "required": true,
+      "value_list": [],
+      "default": "",
       "order": 9
     },
-    "start_time_scheduled_poll": {
-      "description": "Start Time for Schedule/Manual POLL (Use this format: 1970-01-01T00:00:00Z)",
+    "client_id": {
       "data_type": "string",
+      "description": "Client ID (e.g. f607296f-7c4a-4189-b9dc-4b9a1786aaa4)",
+      "required": true,
+      "value_list": [],
+      "default": "",
       "order": 10
+    },
+    "client_secret": {
+      "data_type": "password",
+      "description": "Client Secret (e.g. Sup3r-S3crE7!P@55w0rd_g0es.HERE)",
+      "required": true,
+      "value_list": [],
+      "default": "",
+      "order": 11
+    },
+    "api_version": {
+      "data_type": "string",
+      "description": "The version of the api used",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/api-versions' target='_blank'>API Versions</a>",
+      "required": true,
+      "value_list": [
+        "2023-11-01",
+        "2023-02-01",
+        "2022-11-01",
+        "2022-08-01",
+        "2021-10-01",
+        "2021-04-01",
+        "2020-01-01"
+      ],
+      "default": "2023-11-01",
+      "order": 12
     }
   },
   "actions": [
     {
+      "action": "clear authentication tokens",
+      "identifier": "clear_authentication_tokens",
+      "description": "Clears stored authentication tokens.",
+      "verbose": "",
+      "type": "test",
+      "read_only": true,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
       "action": "verify authentication tokens",
       "identifier": "verify_authentication_tokens",
-      "description": "Verifies the authentication tokens and returns token details",
+      "description": "Verifies the authentication tokens.",
+      "verbose": "Checks for cached authentication tokens and validates they have not expired and returns token details. If the tokens are expired or do not exist, new tokens are generated.",
       "type": "test",
       "read_only": true,
       "parameters": {
         "force_refresh": {
-          "description": "Remove cached authorization tokens and generate new ones.",
+          "description": "Force new token generation",
           "data_type": "boolean",
+          "contains": "",
           "required": false,
+          "primary": false,
+          "value_list": [],
           "default": false,
-          "name": "force_refresh",
-          "id": 1,
-          "param_name": "force_refresh"
+          "order": 0,
+          "allow_list": false
         }
       },
       "output": [
@@ -217,10 +267,22 @@
       "action": "test connectivity",
       "identifier": "test_connectivity",
       "description": "Verifies SOAR connection with Sentinel",
-      "verbose": "Validates the asset configuration by attempting some simple, read-only actions",
+      "verbose": "Validates the asset configuration has connection by attempting some simple, read-only actions.",
       "type": "test",
       "read_only": true,
-      "parameters": {},
+      "parameters": {
+        "force_refresh": {
+          "description": "Force new token generation",
+          "data_type": "boolean",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": false,
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
@@ -248,1736 +310,2205 @@
       "versions": "EQ(*)"
     },
     {
-      "action": "alert rule create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_alert_rule",
+      "action": "create_or_update_action",
+      "identifier": "create_or_update_action",
+      "description": "Creates or updates the action of alert rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/create-or-update' target='_blank'>Actions - Create Or Update</a>",
+      "type": "generic",
       "read_only": false,
       "parameters": {
+        "action_id": {
+          "description": "Action ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "rule_id": {
+          "description": "Alert rule ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
         "logic_app_resource_id": {
           "description": "Logic App Resource Id",
           "data_type": "string",
+          "contains": "",
           "required": true,
+          "primary": false,
+          "value_list": [],
           "default": "",
-          "name": "logic_app_resource_id",
-          "id": 1,
-          "param_name": "logic_app_resource_id"
+          "order": 2,
+          "allow_list": false
         },
         "trigger_uri": {
-          "description": "Logic App Callback URL for this specific workflow.",
+          "description": "Logic App Callback URL for this specific workflow",
           "data_type": "string",
+          "contains": "",
           "required": true,
+          "primary": false,
+          "value_list": [],
           "default": "",
-          "name": "trigger_uri",
-          "id": 1,
-          "param_name": "trigger_uri"
+          "order": 3,
+          "allow_list": false
         },
         "etag": {
           "description": "Etag of the azure resource",
           "data_type": "string",
-          "required": true,
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
           "default": "",
-          "name": "etag",
-          "id": 1,
-          "param_name": "etag"
+          "order": 4,
+          "allow_list": false
         }
       },
-      "output": [
-        {
-          "data_path": "action_result.data.etag",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.id",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.name",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.properties.logicAppResourceId",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.properties.workflowId",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.createdAt",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.createdBy",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.createdByType",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.lastModifiedAt",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.lastModifiedBy",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.lastModifiedByType",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.type",
-          "data_type": "string"
-        }
-      ],
+      "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "alert rule delete",
-      "description": "Delete the action of alert rule",
-      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/delete?view=rest-securityinsights-2024-03-01&tabs=HTTP' target='_blank'>asdfasdf</a>",
-      "type": "type_goes_here",
-      "identifier": "delete_alert_rule",
+      "action": "delete_action",
+      "identifier": "delete_action",
+      "description": "Delete the action of alert rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/delete' target='_blank'>Actions - Delete</a>",
+      "type": "generic",
       "read_only": false,
       "parameters": {
-        "alert_rule_id": {
-          "description": "Alert rule ID",
-          "data_type": "string",
-          "required": true,
-          "default": "",
-          "name": "alert_rule_id",
-          "id": 0,
-          "param_name": "alert_rule_id"
-        },
         "action_id": {
           "description": "Action ID",
           "data_type": "string",
+          "contains": "",
           "required": true,
+          "primary": false,
+          "value_list": [],
           "default": "",
-          "name": "action_id",
-          "id": 1,
-          "param_name": "action_id"
-        }
-      },
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "alert rule get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_alert_rule",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "alert rules list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_alert_rules",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "alert rule action create or update",
-      "description": "Creates or updates the action of alert rule.\n\n",
-      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP' target='_blank'>Microsoft Docs - lsdkjflsdkjfsldkjlkdfj</a>",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_alert_rule",
-      "read_only": false,
-      "parameters": {
-        "logic_app_resource_id": {
-          "description": "Logic App Resource Id",
-          "data_type": "string",
-          "required": true,
-          "default": "",
-          "name": "logic_app_resource_id",
-          "id": 1,
-          "param_name": "logic_app_resource_id"
+          "order": 0,
+          "allow_list": false
         },
-        "trigger_uri": {
-          "description": "Logic App Callback URL for this specific workflow.",
-          "data_type": "string",
-          "required": true,
-          "default": "",
-          "name": "trigger_uri",
-          "id": 1,
-          "param_name": "trigger_uri"
-        },
-        "etag": {
-          "description": "Etag of the azure resource",
-          "data_type": "string",
-          "required": true,
-          "default": "",
-          "name": "etag",
-          "id": 1,
-          "param_name": "etag"
-        }
-      },
-      "output": [
-        {
-          "data_path": "action_result.data.etag",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.id",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.name",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.properties.logicAppResourceId",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.properties.workflowId",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.createdAt",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.createdBy",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.createdByType",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.lastModifiedAt",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.lastModifiedBy",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.systemData.lastModifiedByType",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.type",
-          "data_type": "string"
-        }
-      ],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "alert rule action delete",
-      "description": "Delete the action of alert rule",
-      "verbose": "https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/delete?view=rest-securityinsights-2024-03-01&tabs=HTTP",
-      "type": "type_goes_here",
-      "identifier": "delete_alert_rule",
-      "read_only": false,
-      "parameters": {
-        "alert_rule_id": {
+        "rule_id": {
           "description": "Alert rule ID",
           "data_type": "string",
+          "contains": "",
           "required": true,
+          "primary": false,
+          "value_list": [],
           "default": "",
-          "name": "alert_rule_id",
-          "id": 0,
-          "param_name": "alert_rule_id"
-        },
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_action",
+      "identifier": "get_action",
+      "description": "Gets the action of alert rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/actions/get' target='_blank'>Actions - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
         "action_id": {
           "description": "Action ID",
           "data_type": "string",
+          "contains": "",
           "required": true,
+          "primary": false,
+          "value_list": [],
           "default": "",
-          "name": "action_id",
-          "id": 1,
-          "param_name": "action_id"
+          "order": 0,
+          "allow_list": false
+        },
+        "rule_id": {
+          "description": "Alert rule ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
         }
       },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "alert rule action get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_alert_rule_action",
-      "read_only": false,
-      "parameters": {},
+      "action": "list_actions_by_alert_rule",
+      "identifier": "list_actions_by_alert_rule",
+      "description": "Gets all actions of alert rule.",
+      "verbose": "<a href='documentation_uri' target='_blank'>Actions - List By Alert Rule</a>",
+      "type": "contain, correct, generic, investigate, test",
+      "read_only": true,
+      "parameters": {
+        "rule_id": {
+          "description": "Alert rule ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "alert rule actions list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_action_by_alert_rule",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "alert rule template get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "get_alert_rule_template",
       "identifier": "get_alert_rule_template",
-      "read_only": false,
-      "parameters": {},
+      "description": "Gets the alert rule template.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/alert-rule-templates/get' target='_blank'>Alert Rule Templates - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "alert_rule_template_id": {
+          "description": "Alert rule template ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "alert rule templates list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "list_alert_rule_templates",
       "identifier": "list_alert_rule_templates",
-      "read_only": false,
+      "description": "Gets all alert rule templates.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/alert-rule-templates/list' target='_blank'>Alert Rule Templates - List\n</a>",
+      "type": "generic",
+      "read_only": true,
       "parameters": {},
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "automation rule create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_automation_rule",
+      "action": "delete_alert_rule",
+      "identifier": "delete_alert_rule",
+      "description": "Delete the alert rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/alert-rules/delete' target='_blank'>Alert Rules - Delete</a>",
+      "type": "generic",
       "read_only": false,
+      "parameters": {
+        "rule_id": {
+          "description": "Alert rule ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_alert_rule",
+      "identifier": "get_alert_rule",
+      "description": "Gets the alert rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/alert-rules/get' target='_blank'>Alert Rules - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "rule_id": {
+          "description": "Alert rule ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_alert_rules",
+      "identifier": "list_alert_rules",
+      "description": "Gets all alert rules.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/alert-rules/list' target='_blank'>Alert Rules - List</a>",
+      "type": "generic",
+      "read_only": true,
       "parameters": {},
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "automation rule delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "delete_automation_rule",
       "identifier": "delete_automation_rule",
+      "description": "Delete the automation rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/automation-rules/delete' target='_blank'>Automation Rules - Delete</a>",
+      "type": "generic",
       "read_only": false,
-      "parameters": {},
+      "parameters": {
+        "rule_id": {
+          "description": "Automation rule ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "automation rule get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "get_automation_rule",
       "identifier": "get_automation_rule",
-      "read_only": false,
-      "parameters": {},
+      "description": "Gets the automation rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/automation-rules/get' target='_blank'>Automation Rules - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "rule_id": {
+          "description": "Automation rule ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "automation rules list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "list_automation_rules",
       "identifier": "list_automation_rules",
-      "read_only": false,
+      "description": "Gets the automation rule.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/automation-rules/get' target='_blank'>Automation Rules - Get</a>",
+      "type": "generic",
+      "read_only": true,
       "parameters": {},
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "bookmark create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "create_or_update_bookmark",
       "identifier": "create_or_update_bookmark",
+      "description": "Creates or updates the bookmark.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/bookmarks/create-or-update' target='_blank'>Bookmarks - Create Or Update</a>",
+      "type": "investigate",
       "read_only": false,
-      "parameters": {},
+      "parameters": {
+        "bookmark_id": {
+          "description": "Bookmark ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "display_name": {
+          "description": "The display name of the bookmark",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "query": {
+          "description": "The query of the bookmark",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "etag": {
+          "description": "Etag of the azure resource",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "query_start_time": {
+          "description": "The start time for the query",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 4,
+          "allow_list": false
+        },
+        "query_end_time": {
+          "description": "The end time for the query",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 5,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "bookmark delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "delete_bookmark",
       "identifier": "delete_bookmark",
+      "description": "Delete the bookmark.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/bookmarks/delete' target='_blank'>Bookmarks - Delete</a>",
+      "type": "generic",
       "read_only": false,
-      "parameters": {},
+      "parameters": {
+        "bookmark_id": {
+          "description": "Bookmark ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "bookmark get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "get_bookmark",
       "identifier": "get_bookmark",
-      "read_only": false,
-      "parameters": {},
+      "description": "Gets a bookmark.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/bookmarks/get' target='_blank'>Bookmarks - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "bookmark_id": {
+          "description": "Bookmark ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "bookmarks list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "list_bookmarks",
       "identifier": "list_bookmarks",
-      "read_only": false,
+      "description": "Gets all bookmarks.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/bookmarks/list' target='_blank'>Bookmarks - List</a>",
+      "type": "generic",
+      "read_only": true,
       "parameters": {},
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "content package install",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "install_content_package",
       "identifier": "install_content_package",
+      "description": "Install a package to the workspace.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-package/install' target='_blank'>Content Package - Install</a>",
+      "type": "generic",
       "read_only": false,
-      "parameters": {},
+      "parameters": {
+        "package_id": {
+          "description": "Package Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "content_id": {
+          "description": "The content id of the package",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "content_kind": {
+          "description": "The package kind",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [
+            "Solution",
+            "Standalone"
+          ],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "content_product_id": {
+          "description": "Unique ID for the content",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "display_name": {
+          "description": "The display name of the package",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "version": {
+          "description": "The latest version number of the package",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 4,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "content package uninstall",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "uninstall_content_package",
       "identifier": "uninstall_content_package",
+      "description": "Uninstall a package from the workspace.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-package/uninstall' target='_blank'>Content Package - Uninstall</a>",
+      "type": "generic",
       "read_only": false,
-      "parameters": {},
+      "parameters": {
+        "package_id": {
+          "description": "Package Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "content templates list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "get_content_package",
+      "identifier": "get_content_package",
+      "description": "Gets an installed packages by its id.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-packages/get' target='_blank'>Content Packages - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "package_id": {
+          "description": "Package Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_content_packages",
+      "identifier": "list_content_packages",
+      "description": "Gets all installed packages.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-packages/list' target='_blank'>Content Packages - List</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "count_only": {
+          "description": "Instructs the server to return only object count without actual body",
+          "data_type": "boolean",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": false,
+          "order": 0,
+          "allow_list": false
+        },
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "search": {
+          "description": "Searches for a substring in the response",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "skip": {
+          "description": "Used to skip n elements in the OData query (offset)",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 5,
+          "allow_list": false
+        },
+        "skip_token": {
+          "description": "If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 4,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "Returns only the first n results",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 5,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "delete_content_template",
+      "identifier": "delete_content_template",
+      "description": "Delete an installed template.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-template/delete' target='_blank'>Content Template - Delete</a>",
+      "type": "generic",
+      "read_only": false,
+      "parameters": {
+        "template_id": {
+          "description": "Template Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_content_template",
+      "identifier": "get_content_template",
+      "description": "Gets a template by its identifier.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-template/get' target='_blank'>Content Template - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "template_id": {
+          "description": "Template Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "install_content_template",
+      "identifier": "install_content_template",
+      "description": "Install a template.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-template/install' target='_blank'>Content Template - Install</a>",
+      "type": "generic",
+      "read_only": false,
+      "parameters": {
+        "template_id": {
+          "description": "Template Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "content_id": {
+          "description": "Static ID for the content",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "content_kind": {
+          "description": "The kind of content the template is for",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [
+            "AnalyticsRule",
+            "AnalyticsRuleTemplate",
+            "AutomationRule",
+            "AzureFunction",
+            "DataConnector",
+            "DataType",
+            "HuntingQuery",
+            "InvestigationQuery",
+            "LogicAppsCustomConnector",
+            "Parser",
+            "Playbook",
+            "PlaybookTemplate",
+            "Solution",
+            "Watchlist",
+            "WatchlistTemplate",
+            "Workbook",
+            "WorkbookTemplate"
+          ],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "content_product_id": {
+          "description": "Unique ID for the content",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "display_name": {
+          "description": "The display name of the template",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 4,
+          "allow_list": false
+        },
+        "package_id": {
+          "description": "The package Id contains this template",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 5,
+          "allow_list": false
+        },
+        "source_kind": {
+          "description": "param_description_goes_here",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [
+            "Community",
+            "LocalWorkspace",
+            "Solution",
+            "SourceRepository"
+          ],
+          "default": "",
+          "order": 6,
+          "allow_list": false
+        },
+        "source_name": {
+          "description": "Name of the content source",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 7,
+          "allow_list": false
+        },
+        "source_id": {
+          "description": "ID of the content source",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 8,
+          "allow_list": false
+        },
+        "package_version": {
+          "description": "Version of the package",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 9,
+          "allow_list": false
+        },
+        "content_version": {
+          "description": "Version of the content",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 10,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_content_templates",
       "identifier": "list_content_templates",
-      "read_only": false,
-      "parameters": {},
+      "description": "Gets all installed templates.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/content-templates/list' target='_blank'>Content Templates - List</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "count_only": {
+          "description": "Instructs the server to return only object count without actual body",
+          "data_type": "boolean",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": false,
+          "order": 0,
+          "allow_list": false
+        },
+        "expand": {
+          "description": "Expands the object with optional fiends that are not included by default",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "search": {
+          "description": "Searches for a substring in the response",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 4,
+          "allow_list": false
+        },
+        "skip": {
+          "description": "Used to skip n elements in the OData query (offset)",
+          "data_type": "numeric",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 5,
+          "allow_list": false
+        },
+        "skip_token": {
+          "description": "If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 6,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "Returns only the first n results",
+          "data_type": "numeric",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 7,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "data connector create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_data_connector",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "data connector delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "delete_data_connector",
       "identifier": "delete_data_connector",
+      "description": "Delete the data connector.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/data-connectors/delete' target='_blank'>Data Connectors - Delete</a>",
+      "type": "generic",
       "read_only": false,
-      "parameters": {},
+      "parameters": {
+        "data_connector_id": {
+          "description": "Connector ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "data connector get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "get_data_connector",
       "identifier": "get_data_connector",
-      "read_only": false,
-      "parameters": {},
+      "description": "Gets a data connector.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/data-connectors/get' target='_blank'>Data Connectors - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "data_connector_id": {
+          "description": "Connector ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "data connectors list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "list_data_connectors",
       "identifier": "list_data_connectors",
-      "read_only": false,
+      "description": "Gets all data connectors.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/data-connectors/list' target='_blank'>Data Connectors - List</a>",
+      "type": "generic",
+      "read_only": true,
       "parameters": {},
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "run playbook on entity",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_data_connectors",
+      "action": "run_playbook_on_entity",
+      "identifier": "run_playbook_on_entity",
+      "description": "Triggers playbook on a specific entity.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/entities/run-playbook' target='_blank'>Entities - Run Playbook</a>",
+      "type": "correct",
       "read_only": false,
-      "parameters": {},
+      "parameters": {
+        "entity_id": {
+          "description": "Entity ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "logic_apps_resource_id": {
+          "description": "The resource id of the playbook resource",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "incident_arm_id": {
+          "description": "The incident id to associate the entity with",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        }
+      },
       "output": [],
       "versions": "EQ(*)"
     },
     {
-      "action": "incident comment create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "create_or_update_incident_comment",
       "identifier": "create_or_update_incident_comment",
+      "description": "Creates or updates a comment for a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-comments/create-or-update' target='_blank'>Incident Comments - Create Or Update</a>",
+      "type": "investigate",
       "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident comment delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_incident_comment",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident comment get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_incident_comment",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident comments list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_comments",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident relation create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_comments",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident relation delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_comments",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident relation get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_comments",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident relations list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_comments",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident task create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_incident_task",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident task delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_incident_task",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident task get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_incident_task",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident tasks list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_tasks",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident run playbook",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "run_playbook_on_incident",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_incident",
-      "verbose": "https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP",
-      "read_only": false,
-      "versions": "EQ(*)",
       "parameters": {
         "incident_id": {
           "description": "Incident ID",
-          "data_type": "numeric",
+          "data_type": "string",
+          "contains": "",
           "required": true,
-          "value_list": [],
           "primary": false,
-          "name": "incident_id"
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "comment_id": {
+          "description": "Incident comment ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "comment_message": {
+          "description": "The comment message",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "delete_incident_comment",
+      "identifier": "delete_incident_comment",
+      "description": "Deletes a comment for a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-comments/delete' target='_blank'>Incident Comments - Delete</a>",
+      "type": "investigate",
+      "read_only": false,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "comment_id": {
+          "description": "Incident comment ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_incident_comment",
+      "identifier": "get_incident_comment",
+      "description": "action_description_goes_here",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-comments/get' target='_blank'>Incident Comments - Get</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "comment_id": {
+          "description": "Incident comment ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_incident_comments",
+      "identifier": "list_incident_comments",
+      "description": "Gets all comments for a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-comments/list' target='_blank'>Incident Comments - List</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "skip_token": {
+          "description": "If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "Returns only the first n results",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 4,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "create_or_update_incident_relation",
+      "identifier": "create_or_update_incident_relation",
+      "description": "Creates or updates a relation for a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-relations/create-or-update' target='_blank'>Incident Relations - Create Or Update</a>",
+      "type": "investigate",
+      "read_only": false,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "relation_name": {
+          "description": "Relation Name",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "related_resource_id": {
+          "description": "The resource ID of the related resource",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "delete_incident_relation",
+      "identifier": "delete_incident_relation",
+      "description": "Deletes a relation for a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-relations/delete' target='_blank'>Incident Relations - Delete</a>",
+      "type": "investigate",
+      "read_only": false,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "relation_name": {
+          "description": "Relation Name",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_incident_relation",
+      "identifier": "get_incident_relation",
+      "description": "Gets a relation for a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-relations/get' target='_blank'>Incident Relations - Get</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "relation_name": {
+          "description": "Relation Name",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_incident_relations",
+      "identifier": "list_incident_relations",
+      "description": "Gets all relations for a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-relations/list' target='_blank'>Incident Relations - List</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "skip_token": {
+          "description": "If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "param_description_goes_here",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 4,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "create_or_update_incident_task",
+      "identifier": "create_or_update_incident_task",
+      "description": "action_description_goes_here",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-tasks/create-or-update' target='_blank'>Incident Tasks - Create Or Update</a>",
+      "type": "investigate",
+      "read_only": false,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "task_id": {
+          "description": "Incident task ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "task_status": {
+          "description": "The status of the task",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [
+            "Completed",
+            "New"
+          ],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "task_title": {
+          "description": "The title of the task",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "delete_incident_task",
+      "identifier": "delete_incident_task",
+      "description": "Delete the incident task.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-tasks/delete' target='_blank'>Incident Tasks - Delete</a>",
+      "type": "investigate",
+      "read_only": false,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "task_id": {
+          "description": "Incident task ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_incident_task",
+      "identifier": "get_incident_task",
+      "description": "Gets an incident task.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-tasks/get' target='_blank'>Incident Tasks - Get</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "task_id": {
+          "description": "Incident task ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_incident_tasks",
+      "identifier": "list_incident_tasks",
+      "description": "Gets all incident tasks.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incident-tasks/list' target='_blank'>Incident Tasks - List</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "run_playbook_on_incident",
+      "identifier": "run_playbook_on_incident",
+      "description": "Triggers playbook on a specific incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/run-playbook' target='_blank'>Incidents - Run Playbook</a>",
+      "type": "correct",
+      "read_only": false,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "logic_app_resource_id": {
+          "description": "The resource id of the playbook resource",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "create_or_update_incident",
+      "identifier": "create_or_update_incident",
+      "description": "Creates or updates an incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/create-or-update' target='_blank'>Incidents - Create Or Update</a>",
+      "type": "investigate",
+      "read_only": false,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
         },
         "severity": {
           "description": "The severity of the incident",
           "data_type": "string",
+          "contains": "",
           "required": true,
+          "primary": false,
           "value_list": [
             "High",
-            "Medium",
+            "Informational",
             "Low",
-            "Informational"
+            "Medium"
           ],
-          "primary": false,
-          "name": "severity"
+          "default": "",
+          "order": 1,
+          "allow_list": false
         },
         "status": {
           "description": "The status of the incident",
           "data_type": "string",
+          "contains": "",
           "required": true,
-          "value_list": [
-            "New",
-            "Active",
-            "Closed"
-          ],
           "primary": false,
-          "name": "status"
+          "value_list": [
+            "Active",
+            "Closed",
+            "New"
+          ],
+          "default": "New",
+          "order": 2,
+          "allow_list": false
         },
         "title": {
           "description": "The title of the incident",
           "data_type": "string",
+          "contains": "",
           "required": true,
+          "primary": false,
           "value_list": [],
-          "primary": false,
-          "name": "title"
-        },
-        "etag": {
-          "description": "Etag of the azure resource",
-          "data_type": "string",
-          "required": false,
-          "value_list": [],
-          "primary": false,
-          "name": "etag"
-        },
-        "classification": {
-          "description": "The reason the incident was closed",
-          "data_type": "string",
-          "required": false,
-          "value_list": [
-            "BenignPositive",
-            "FalsePositive",
-            "TruePositive",
-            "Undetermined"
-          ],
-          "primary": false,
-          "name": "classification"
-        },
-        "classification_comment": {
-          "description": "Describes the reason the incident was closed",
-          "data_type": "string",
-          "required": false,
-          "value_list": [],
-          "primary": false,
-          "name": ""
-        },
-        "classification_reason": {
-          "description": "The classification reason the incident was closed with",
-          "data_type": "string",
-          "required": false,
-          "value_list": [
-            "InaccurateData",
-            "IncorrectAlertLogic",
-            "SuspiciousActivity",
-            "SuspiciousButExpected"
-          ],
-          "primary": false,
-          "name": "classification_reason"
-        },
-        "description": {
-          "description": "The description of the incident",
-          "data_type": "string",
-          "required": false,
-          "value_list": [],
-          "primary": false,
-          "name": "description"
-        },
-        "first_activity": {
-          "description": "The time of the first activity in the incident",
-          "data_type": "string",
-          "required": false,
-          "value_list": [],
-          "primary": false,
-          "name": "first_activity"
-        },
-        "labels": {
-          "description": "List of labels relevant to this incident; is of the <a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP#incidentlabel'>IncidentLabel</a> data type",
-          "data_type": "string",
-          "required": false,
-          "value_list": [],
-          "primary": false,
-          "name": ""
-        },
-        "last_activity": {
-          "description": "The time of the last activity in the incident",
-          "data_type": "string",
-          "required": false,
-          "value_list": [],
-          "primary": false,
-          "name": "last_activity"
-        },
-        "owner": {
-          "description": "Describes a user that the incident is assigned to; is of the <a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/create-or-update?view=rest-securityinsights-2024-03-01&tabs=HTTP#incidentownerinfo'>IncidentOwnerInfo</a> datatype",
-          "data_type": "string",
-          "required": false,
-          "value_list": [],
-          "primary": false,
-          "name": "owner"
+          "default": "",
+          "order": 3,
+          "allow_list": false
         }
       },
-      "output": [
-        {
-          "data_path": "action_result.status",
-          "data_type": "string",
-          "example_values": [
-            "success",
-            "failed"
-          ]
-        },
-        {
-          "data_path": "etag",
-          "data_type": "string"
-        },
-        {
-          "data_path": "id",
-          "data_type": "string"
-        },
-        {
-          "data_path": "name",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.additionalData",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.classification",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.classificationComment",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.classificationReason",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.createdTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.description",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.firstActivityTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.incidentNumber",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "properties.incidentUrl",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.labels",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.lastActivityTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.lastModifiedTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.owner",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.providerIncidentId",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.providerName",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.relatedAnalyticRuleIds",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.severity",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.status",
-          "data_type": "string"
-        },
-        {
-          "data_path": "properties.title",
-          "data_type": "string"
-        },
-        {
-          "data_path": "systemData",
-          "data_type": "string"
-        },
-        {
-          "data_path": "type",
-          "data_type": "string"
-        },
-        {
-          "data_path": "CloudErrorBody.code",
-          "data_type": "string"
-        },
-        {
-          "data_path": "CloudErrorBody.message",
-          "data_type": "string"
-        }
-      ]
+      "output": [],
+      "versions": "EQ(*)"
     },
     {
-      "action": "incident delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
+      "action": "delete_incident",
       "identifier": "delete_incident",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_incident",
-      "read_only": true,
-      "parameters": {
-        "incident_name": {
-          "description": "Incident Name",
-          "data_type": "string",
-          "required": true,
-          "order": 0
-        }
-      },
-      "output": [
-        {
-          "data_path": "action_result.status",
-          "data_type": "string",
-          "example_values": [
-            "success",
-            "failed"
-          ]
-        },
-        {
-          "data_path": "action_result.parameter.incident_name",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.etag",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.id",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.name",
-          "data_type": "string",
-          "contains": [
-            "mssentinel incident name"
-          ],
-          "column_name": "Name",
-          "column_order": 0
-        },
-        {
-          "data_path": "action_result.data.*.properties.additionalData.alertsCount",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.additionalData.bookmarksCount",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.additionalData.commentsCount",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.createdTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.incidentNumber",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.incidentUrl",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.labels.*.labelName",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.labels.*.labelType",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.lastModifiedTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.assignedTo",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.email",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.objectId",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.userPrincipalName",
-          "data_type": "string",
-          "column_name": "Owner UPN",
-          "column_order": 3
-        },
-        {
-          "data_path": "action_result.data.*.properties.severity",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.status",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.title",
-          "data_type": "string",
-          "column_name": "Title",
-          "column_order": 2
-        },
-        {
-          "data_path": "action_result.data.*.type",
-          "data_type": "string",
-          "column_name": "Type",
-          "column_order": 1
-        },
-        {
-          "data_path": "action_result.summary.incident_id",
-          "data_type": "string",
-          "contains": [
-            "mssentinel incident id"
-          ]
-        },
-        {
-          "data_path": "action_result.summary.incident_name",
-          "data_type": "string",
-          "contains": [
-            "mssentinel incident name"
-          ]
-        },
-        {
-          "data_path": "action_result.message",
-          "data_type": "string"
-        },
-        {
-          "data_path": "summary.total_objects",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "summary.total_objects_successful",
-          "data_type": "numeric"
-        }
-      ],
-      "versions": "EQ(*)",
-      "render": {
-        "width": 12,
-        "title": "Get Incident",
-        "type": "table",
-        "height": 5
-      }
-    },
-    {
-      "action": "incidents list",
-      "identifier": "list_incidents",
-      "description": "Gets all incidents",
-      "parameters": {
-        "limit": {
-          "data_type": "numeric",
-          "description": "Maximum number of incidents to list",
-          "required": true,
-          "default": 100,
-          "order": 0
-        },
-        "filter": {
-          "data_type": "string",
-          "description": "Filters the results, based on a Boolean condition",
-          "order": 1
-        }
-      },
-      "type": "investigate",
-      "read_only": true,
-      "versions": "EQ(*)",
-      "output": [
-        {
-          "data_path": "action_result.status",
-          "data_type": "string",
-          "example_values": [
-            "success",
-            "failed"
-          ]
-        },
-        {
-          "data_path": "action_result.parameter.filter",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.parameter.limit",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.etag",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.id",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.name",
-          "data_type": "string",
-          "contains": [
-            "mssentinel incident id"
-          ]
-        },
-        {
-          "data_path": "action_result.data.*.properties.additionalData.alertsCount",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.additionalData.bookmarksCount",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.additionalData.commentsCount",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.createdTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.incidentNumber",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.data.*.properties.incidentUrl",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.labels.*.labelName",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.labels.*.labelType",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.lastModifiedTimeUtc",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.assignedTo",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.email",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.objectId",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.owner.userPrincipalName",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.severity",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.status",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.properties.title",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.type",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.summary.total_incidents",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.message",
-          "data_type": "string"
-        },
-        {
-          "data_path": "summary.total_objects",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "summary.total_objects_successful",
-          "data_type": "numeric"
-        }
-      ],
-      "render": {
-        "width": 12,
-        "title": "List Incidents",
-        "type": "custom",
-        "view": "mssentinel_view.list_incidents",
-        "height": 5
-      }
-    },
-    {
-      "action": "incident alerts list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_alerts",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident bookmarks list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_bookmarks",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "incident entities list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_incident_entities",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "metadata create",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_metadata",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "metadata delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_metadata",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "metadata get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_metadata",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "metadata list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_metadata",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "metadata update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "update_metadata",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "operations list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_operations",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "product package get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_product_package",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "product packages list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_product_packages",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "product template get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_product_template",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "product templates list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_product_templates",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "machine learning analytics settings create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_machine_learning_analytics_settings",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "machine learning analytics settings delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_machine_learning_analytics_settings",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "machine learning analytics settings get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_machine_learning_analytics_settings",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "machine learning analytics settings list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_machine_learning_analytics_settings",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "sentinel onboarding state create",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_sentinel_onboarding_state",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "sentinel onboarding state delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_sentinel_onboarding_state",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "sentinel onboarding state get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_sentinel_onboarding_state",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "sentinel onboarding state list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_sentinel_onboarding_state",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "source control repositories list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_source_control_repositories",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "source control create",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_source_control",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "source control delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_source_control",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "source control get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_source_control",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "source control list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_source_control",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicator append tags",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "append_tags_to_threat_intelligence_indicator",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicator create",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_threat_intelligence_indicator",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicator update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_threat_intelligence_indicator",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicator delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_threat_intelligence_indicator",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicator get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_threat_intelligence_indicator",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicators query",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "query_threat_intelligence_indicators",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicator replace tags",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "replace_threat_intelligence_indicator_tags",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "threat intelligence indicator list metrics",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "threat_intelligence_indicator_metrics",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlist item create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_watchlist_item",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlist item delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_watchlist_item",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlist item get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_watchlist_item",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlist items list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_watchlist_items",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlist create or update",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "create_or_update_watchlist",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlist delete",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "delete_watchlist",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlist get",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "get_watchlist",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "watchlists list",
-      "description": "description_goes_here",
-      "verbose": "verbose_description_goes_here",
-      "type": "type_goes_here",
-      "identifier": "list_watchlists",
-      "read_only": false,
-      "parameters": {},
-      "output": [],
-      "versions": "EQ(*)"
-    },
-    {
-      "action": "run query",
-      "identifier": "run_query",
-      "description": "Queries the Sentinel Log Analytics workspace for data using KQL",
-      "parameters": {
-        "query": {
-          "description": "Query in KQL (for example, \"SecurityIncident\" will retrieve the Sentinel incidents table)",
-          "data_type": "string",
-          "required": true,
-          "order": 0
-        },
-        "timespan": {
-          "description": "Time Interval in ISO 8601 Duration format. For example, \"P7D\" for last 7 days or an interval like \"2007-03-01T13:00:00Z/2008-05-11T15:30:00Z\"",
-          "data_type": "string",
-          "order": 1
-        },
-        "max_rows": {
-          "description": "Maximum number of rows to return in the result. Defaults to 3000",
-          "data_type": "numeric",
-          "required": true,
-          "default": 3000,
-          "order": 2
-        }
-      },
-      "output": [
-        {
-          "data_path": "action_result.status",
-          "data_type": "string",
-          "example_values": [
-            "success",
-            "failed"
-          ]
-        },
-        {
-          "data_path": "action_result.status",
-          "data_type": "string",
-          "example_values": [
-            "success",
-            "failed"
-          ]
-        },
-        {
-          "data_path": "action_result.parameter.max_rows",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.parameter.query",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.parameter.timespan",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.data.*.TimeGenerated",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.summary.total_rows",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "action_result.message",
-          "data_type": "string"
-        },
-        {
-          "data_path": "action_result.message",
-          "data_type": "string"
-        },
-        {
-          "data_path": "summary.total_objects",
-          "data_type": "numeric"
-        },
-        {
-          "data_path": "summary.total_objects_successful",
-          "data_type": "numeric"
-        }
-      ],
+      "description": "Deletes a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/delete' target='_blank'>Incidents - Delete</a>",
       "type": "generic",
       "read_only": false,
-      "versions": "EQ(*)",
-      "render": {
-        "width": 12,
-        "title": "Run Query",
-        "type": "custom",
-        "view": "mssentinel_view.run_query",
-        "height": 5
-      }
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_incident",
+      "identifier": "get_incident",
+      "description": "Gets a given incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/get' target='_blank'>Incidents - Get</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_incidents",
+      "identifier": "list_incidents",
+      "description": "Gets all incidents.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/list' target='_blank'>Incidents - List</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "skip_token": {
+          "description": "If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "Returns only the first n results",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 3,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_incident_alerts",
+      "identifier": "list_incident_alerts",
+      "description": "Gets all alerts for an incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/list-alerts' target='_blank'>Incidents - List Alerts\n</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_incident_bookmarks",
+      "identifier": "list_incident_bookmarks",
+      "description": "Gets all bookmarks for an incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/list-bookmarks' target='_blank'>Incidents - List Bookmarks</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_incident_entities",
+      "identifier": "list_incident_entities",
+      "description": "Gets all entities for an incident.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/incidents/list-entities' target='_blank'>Incidents - List Entities</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "incident_id": {
+          "description": "Incident ID",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "create_metadata",
+      "identifier": "create_metadata",
+      "description": "Create a Metadata.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/metadata/create' target='_blank'>Metadata - Create</a>",
+      "type": "investigate",
+      "read_only": false,
+      "parameters": {
+        "metadata_name": {
+          "description": "The Metadata name",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "metadata_kind": {
+          "description": "The kind of content the metadata is for",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "parent_id": {
+          "description": "Full parent resource ID of the content item the metadata is for",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "delete_metadata",
+      "identifier": "delete_metadata",
+      "description": "Delete a Metadata.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/metadata/delete' target='_blank'>Metadata - Delete</a>",
+      "type": "generic",
+      "read_only": false,
+      "parameters": {
+        "metadata_name": {
+          "description": "The Metadata name",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_metadata",
+      "identifier": "get_metadata",
+      "description": "Get a Metadata.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/metadata/get' target='_blank'>Metadata - Get</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "metadata_name": {
+          "description": "The Metadata name",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_metadata",
+      "identifier": "list_metadata",
+      "description": "List of all metadata.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/metadata/list' target='_blank'>Metadata - List</a>",
+      "type": "investigate",
+      "read_only": true,
+      "parameters": {
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "skip": {
+          "description": "Used to skip n elements in the OData query (offset)",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 2,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "Returns only the first n results",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 3,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "update_metadata",
+      "identifier": "update_metadata",
+      "description": "Update an existing Metadata.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/metadata/update' target='_blank'>Metadata - Update</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_operations",
+      "identifier": "list_operations",
+      "description": "Lists all operations available Azure Security Insights Resource Provider.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/operations/list' target='_blank'>Operations - List</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {},
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_product_package",
+      "identifier": "get_product_package",
+      "description": "Gets a package by its identifier from the catalog.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/product-package/get' target='_blank'>Product Package - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "package_id": {
+          "description": "Package Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_product_packages",
+      "identifier": "list_product_packages",
+      "description": "Gets all packages from the catalog. Expandable properties:",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/product-packages/list' target='_blank'>Product Packages - List</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "skip_token": {
+          "description": "If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "Returns only the first n results",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "get_product_template",
+      "identifier": "get_product_template",
+      "description": "Gets a template by its identifier.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/product-template/get' target='_blank'>Product Template - Get</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "parameter_name": {
+          "description": "Template Id",
+          "data_type": "string",
+          "contains": "",
+          "required": true,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 0,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
+    },
+    {
+      "action": "list_product_templates",
+      "identifier": "list_product_templates",
+      "description": "Gets all templates in the catalog.",
+      "verbose": "<a href='https://learn.microsoft.com/en-us/rest/api/securityinsights/product-templates/list' target='_blank'>Product Templates - List</a>",
+      "type": "generic",
+      "read_only": true,
+      "parameters": {
+        "count_only": {
+          "description": "Instructs the server to return only object count without actual body",
+          "data_type": "boolean",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": false,
+          "order": 0,
+          "allow_list": false
+        },
+        "odata_filter": {
+          "description": "Filters the results, based on a Boolean condition",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 1,
+          "allow_list": false
+        },
+        "order_by": {
+          "description": "Sorts the results",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 2,
+          "allow_list": false
+        },
+        "search": {
+          "description": "Searches for a substring in the response",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 3,
+          "allow_list": false
+        },
+        "skip": {
+          "description": "Used to skip n elements in the OData query (offset)",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 4,
+          "allow_list": false
+        },
+        "skip_token": {
+          "description": "If a previous response contains a nextLink element, the value of the nextLink element will include a skiptoken parameter that specifies a starting point to use for subsequent calls",
+          "data_type": "string",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": "",
+          "order": 5,
+          "allow_list": false
+        },
+        "limit": {
+          "description": "Returns only the first n results",
+          "data_type": "numeric",
+          "contains": "",
+          "required": false,
+          "primary": false,
+          "value_list": [],
+          "default": 0,
+          "order": 6,
+          "allow_list": false
+        }
+      },
+      "output": [],
+      "versions": "EQ(*)"
     }
   ],
   "pip_dependencies": {
