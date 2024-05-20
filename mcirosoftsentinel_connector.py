@@ -11,12 +11,6 @@
 # either expressed or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
-# https://management.azure.com => {self.tokens['sentinel'].endpoint}
-# subscriptionId => self.config.subscription_id
-# resourceGroupName => self.config.resource_group_name
-# workspaceName => self.config.workspace_name
-
-
 import json
 
 # Phantom imports
@@ -224,6 +218,9 @@ class SentinelConnector(BaseConnector):
             self.action_result.add_debug_data({'r_text': response.text})
             self.action_result.add_debug_data({'r_headers': response.headers})
 
+        if 200 > response.status_code > 399:
+            return self._process_error_response(response)
+
         # Process a json response
         if 'json' in response.headers.get('Content-Type', ''):
             return self._process_json_response(response)
@@ -243,6 +240,12 @@ class SentinelConnector(BaseConnector):
         self.error_print(message)
         return RetVal(self.action_result.set_status(phantom.APP_ERROR, message), message)
 
+    def _process_error_response(self, response: Response = None) -> RetVal:
+        message = response.text
+        self.debug_print("error response:", message)
+        self.error_print(message)
+        return RetVal(self.action_result.set_status(phantom.APP_ERROR, message), message)
+
     def _process_json_response(self, response: Response = None) -> RetVal:
         """
         Attempts to parse a JSON content response.
@@ -252,14 +255,14 @@ class SentinelConnector(BaseConnector):
         """
         try:
             resp_json = response.json()
+            if 200 <= response.status_code < 399:
+                return RetVal(phantom.APP_SUCCESS, resp_json)
         except Exception as e:
             message = f"Unable to parse JSON response. Error: {parse_exception_message(e)}"
             self.error_print(message)
             return RetVal(self.action_result.set_status(phantom.APP_ERROR, message), message)
 
         # Please specify the status codes here
-        if 200 <= response.status_code < 399:
-            return RetVal(phantom.APP_SUCCESS, resp_json)
 
         # You should process the error returned in the json
         error_text = response.text.replace(u'{', '{{').replace(u'}', '}}')
