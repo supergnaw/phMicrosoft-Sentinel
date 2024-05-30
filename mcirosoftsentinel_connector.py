@@ -11,6 +11,34 @@
 # either expressed or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
+# https://management.azure.com => {self.tokens['sentinel'].endpoint}
+# subscriptionId => self.config.subscription_id
+# resourceGroupName => self.config.resource_group_name
+# workspaceName => self.config.workspace_name
+
+"""
+TEMPLATE ACTION HANDLER FUNCTION CONTENTS
+param) -> bool:
+        """"""
+        self.save_progress(f"In action handler for {self.action_id}")
+
+        method, endpoint = f"full_endpoint_uri_goes_here".split(" ", 1)
+
+        params = {"api-version": self.config.api_version}
+
+        data = {}
+
+        status, response_data = self._make_rest_call(endpoint=endpoint, params=params, data=data, method=method)
+
+        if not status:
+            message = f"Action failed"
+            return self.set_status_save_progress(status_code=status, status_message=message)
+
+        self.action_result.add_data(response_data)
+
+        return True
+"""
+
 import json
 
 # Phantom imports
@@ -218,9 +246,6 @@ class SentinelConnector(BaseConnector):
             self.action_result.add_debug_data({'r_text': response.text})
             self.action_result.add_debug_data({'r_headers': response.headers})
 
-        if 200 > response.status_code > 399:
-            return self._process_error_response(response)
-
         # Process a json response
         if 'json' in response.headers.get('Content-Type', ''):
             return self._process_json_response(response)
@@ -240,12 +265,6 @@ class SentinelConnector(BaseConnector):
         self.error_print(message)
         return RetVal(self.action_result.set_status(phantom.APP_ERROR, message), message)
 
-    def _process_error_response(self, response: Response = None) -> RetVal:
-        message = response.text
-        self.debug_print("error response:", message)
-        self.error_print(message)
-        return RetVal(self.action_result.set_status(phantom.APP_ERROR, message), message)
-
     def _process_json_response(self, response: Response = None) -> RetVal:
         """
         Attempts to parse a JSON content response.
@@ -255,14 +274,14 @@ class SentinelConnector(BaseConnector):
         """
         try:
             resp_json = response.json()
-            if 200 <= response.status_code < 399:
-                return RetVal(phantom.APP_SUCCESS, resp_json)
         except Exception as e:
             message = f"Unable to parse JSON response. Error: {parse_exception_message(e)}"
             self.error_print(message)
             return RetVal(self.action_result.set_status(phantom.APP_ERROR, message), message)
 
         # Please specify the status codes here
+        if 200 <= response.status_code < 399:
+            return RetVal(phantom.APP_SUCCESS, resp_json)
 
         # You should process the error returned in the json
         error_text = response.text.replace(u'{', '{{').replace(u'}', '}}')
@@ -3270,13 +3289,11 @@ class SentinelConnector(BaseConnector):
         self.config = SettingsParser(settings=self.get_config(), defaults=self.config_defaults)
         self.debug_print("self.config.values:", self.config.values)
 
-        # Load token from state and parse
+        # Load tokens from state and parse
         if self.state.get("tokens", False):
-            self.tokens["sentinel"].token = self.state["tokens"]["sentinel"]
-            self.debug_print("sentinel token:", self.tokens["sentinel"].summary())
-
-            self.tokens["loganalytics"].token = self.state["tokens"]["loganalytics"]
-            self.debug_print("loganalytics token:", self.tokens["loganalytics"].summary())
+            for resource in ["sentinel", "loganalytics"]:
+                self.tokens[resource].token = self.state["tokens"][resource]
+                self.debug_print(f"{resource} token:", self.tokens[resource].summary())
 
         return phantom.APP_SUCCESS
 
